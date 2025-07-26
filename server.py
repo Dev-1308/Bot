@@ -59,5 +59,5 @@ if __name__ == "__main__":
     print(f"🚀 Starting Flask on http://0.0.0.0:{port}")
     app.run(host="0.0.0.0", port=port)
 
-    app.run(debug=True)
+   
 # If you want to run this server, make sure to set your OpenAI API key in the code above.   
