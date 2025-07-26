@@ -15,11 +15,12 @@ openai.api_key = "sk-proj-JNTtA_rVnihvP_kPf1cnbtHs8NpozyNfnXuexx3P8Vah1Bu-thaLKn
 with open("faqs.json", "r", encoding="utf-8") as f:
     faq_data = json.load(f)
 
-def find_faq_answer(user_msg, role):
-    questions = [faq["q"] for faq in faq_data.get(role, [])]
+
+def find_faq_answer(user_msg):
+    questions = [faq["q"] for faq in faq_data]
     matches = difflib.get_close_matches(user_msg, questions, n=1, cutoff=0.6)
     if matches:
-        for faq in faq_data[role]:
+        for faq in faq_data:
             if faq["q"] == matches[0]:
                 return faq["a"]
     return None
@@ -43,8 +44,7 @@ def ask_gpt(message, lang):
 def chat():
     data = request.get_json()
     msg = data.get("message", "")
-    role = data.get("role", "Grower")
-    lang = data.get("lang", "hi")
+
 
     # First, try FAQ match
     faq_answer = find_faq_answer(msg, role)

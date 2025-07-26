@@ -1,6 +1,3 @@
-let currentLang = "hi";
-let currentRole = "Grower";
-
 const chatBox = document.getElementById("chatBox");
 const userInput = document.getElementById("userInput");
 const roleSelector = document.getElementById("roleSelector");
@@ -37,8 +34,7 @@ async function sendMessage() {
     },
     body: JSON.stringify({
       message,
-      role: currentRole,
-      lang: currentLang,
+     
     }),
   });
 
