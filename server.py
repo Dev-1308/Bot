@@ -55,7 +55,9 @@ def chat():
     return jsonify({"reply": gpt_reply})
 
 if __name__ == "__main__":
-    print("👀 Flask server starting...")
+    port = int(os.environ.get("PORT", 5000))  # Render dynamically sets PORT
+    print(f"🚀 Starting Flask on http://0.0.0.0:{port}")
+    app.run(host="0.0.0.0", port=port)
 
     app.run(debug=True)
 # If you want to run this server, make sure to set your OpenAI API key in the code above.   
