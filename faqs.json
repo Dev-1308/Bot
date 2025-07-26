@@ -226,5 +226,9 @@
   {
     "q": "Can I stop a truck?",
     "a": "Only if there is suspicion and APMC confirmation."
+  },
+  {
+    "q":"Ask About Us",
+    "a": "BML Chat Bot is an AI created by Rishishwar Industry, Gwalior, designed to assist with agricultural logistics and crop management."
   }
 ]
