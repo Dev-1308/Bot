@@ -230,5 +230,285 @@
   {
     "q":"Ask About Us",
     "a": "BML Chat Bot is an AI created by Rishishwar Industry, Gwalior, designed to assist with agricultural logistics and crop management."
+  },
+  {
+        "q": "मैं अपने बगीचे की जानकारी कैसे जोड़ूं?",
+        "a": "आप 'My Orchards' सेक्शन में जाकर बगीचे का नाम, फलदार पेड़ों की संख्या और कटाई की संभावित तारीख दर्ज कर सकते हैं।"
+    },
+    {
+        "q": "How do I add my orchard details?",
+        "a": "Go to the 'My Orchards' section and enter orchard name, number of fruiting trees, and expected harvest date."
+    },
+    {
+        "q": "GPS से लोकेशन कैसे सेट करें?",
+        "a": "आप अपने बगीचे की सीमाएं मार्क करने के लिए GPS मैप और फ्री मार्कर टूल का उपयोग कर सकते हैं।"
+    },
+    {
+        "q": "How do I use GPS to mark orchard?",
+        "a": "Use the GPS map and free marker tool to draw your orchard boundary. A .png image will be saved with your profile."
+    },
+    {
+        "q": "क्या मैं एक से अधिक बगीचे जोड़ सकता हूँ?",
+        "a": "हाँ, आप अधिकतम 7 बगीचे जोड़ सकते हैं। ज़रूरत पड़ने पर नया उपयोगकर्ता नाम बना कर और जोड़ सकते हैं।"
+    },
+    {
+        "q": "Can I add multiple orchards?",
+        "a": "Yes, up to 7 orchards can be added. For more, use another user profile."
+    },
+    {
+        "q": "पैक हाउस की जानकारी कैसे अपडेट करें?",
+        "a": "'Pack House Status' में जाकर अपना पैक हाउस जोड़ें या नजदीकी पैक हाउस का नाम और नंबर दर्ज करें।"
+    },
+    {
+        "q": "How do I update pack house information?",
+        "a": "Go to 'Pack House Status' and either add your own or enter the nearest pack house name and contact number."
+    },
+    {
+        "q": "आढ़ती की जानकारी कहाँ दर्ज करूँ?",
+        "a": "'Your Commission Agent' सेक्शन में नाम, मोबाइल नंबर और संबंधित APMC नाम दर्ज करें।"
+    },
+    {
+        "q": "Where do I add commission agent details?",
+        "a": "Enter name, mobile number, and the APMC market name in the 'Your Commission Agent' section."
+    },
+    {
+        "q": "मैं अपना डैशबोर्ड कैसे देखूं?",
+        "a": "Grower's Dashboard में आपके द्वारा जोड़ी गई सभी जानकारी, बगीचों की संख्या और कटाई की तिथि दिखाई देगी।"
+    },
+    {
+        "q": "How do I view my dashboard?",
+        "a": "Your Grower's Dashboard shows all entered details, number of orchards, and harvesting dates."
+    },
+    {
+        "q": "पैक हाउस मालिक किसान कैसे जोड़ सकता है?",
+        "a": "'Add your farmers here' विकल्प में किसान का नाम, क्रेट संख्या और बगीचे की जानकारी जोड़ें।"
+    },
+    {
+        "q": "How can a pack house owner add farmers?",
+        "a": "Use the 'Add your farmers here' option to enter grower name, crate numbers, and orchard details."
+    },
+    {
+        "q": "क्या ऐप फोनबुक एक्सेस करता है?",
+        "a": "हाँ, अनुमति मिलने पर ऐप संपर्क सूची से किसानों, पैकर्स, ड्राइवर्स की जानकारी ले सकता है।"
+    },
+    {
+        "q": "Does the app access phone contacts?",
+        "a": "Yes, with permission, the app can access your contacts to add growers, packers, and drivers."
+    },
+    {
+        "q": "बोली लगाने के बाद बीमा कैसे मिलेगा?",
+        "a": "गाड़ी बुक होने के बाद बीमा सेवा प्रदाता की जानकारी ड्राइवर, किसान और अन्य संबंधित पक्षों को भेजी जाएगी।"
+    },
+    {
+        "q": "How does insurance work after booking?",
+        "a": "After booking the vehicle, insurance provider details will be sent to the driver, grower, and other relevant parties."
+    },
+     
+    {
+        "q": "आढ़ती के रूप में प्रोफाइल कैसे बनाएं?",
+        "a": "'Aadhati Sign Up' में जाकर अपनी ट्रेडिंग फर्म का नाम, व्यापार प्रारंभ वर्ष और APMC लाइसेंस विवरण भरें।"
+    },
+    {
+        "q": "How to create profile as commission agent?",
+        "a": "Go to 'Aadhati Sign Up' and enter trading firm name, start year, and APMC license details."
+    },
+    {
+        "q": "क्या मैं व्यापार के लिए फाइनेंस ले सकता हूँ?",
+        "a": "'Do you need trade finance' विकल्प को चुनकर आप व्यापार वित्त की जानकारी जोड़ सकते हैं।"
+    },
+    {
+        "q": "Can I get trade finance?",
+        "a": "Yes, you can select the 'Do you need trade finance' option while signing up."
+    },
+
+    
+    {
+        "q": "लादानी प्रोफाइल कैसे बनाएं?",
+        "a": "'Ladani Sign Up' में अपनी ट्रेडिंग फर्म का नाम, व्यापार वर्ष, पता और लाइसेंस की जानकारी भरें।"
+    },
+    {
+        "q": "How to register as a buyer?",
+        "a": "In 'Ladani Sign Up', provide your trading firm name, year of trading, address, and license details."
+    },
+    {
+        "q": "क्या मैं आढ़ती से खरीदने के लिए लिंक कर सकता हूँ?",
+        "a": "हाँ, आप 'Attached with Aadhati' विकल्प चुन सकते हैं।"
+    },
+    {
+        "q": "Can I attach with an Aadhati?",
+        "a": "Yes, you can choose the 'Attached with Aadhati' option during sign-up."
+    },
+
+    
+    {
+        "q": "मैं फॉरवर्डिंग फर्म कैसे बना सकता हूँ?",
+        "a": "'Freight Forwarder Sign Up' में जाकर अपना नाम, लाइसेंस और स्थान की जानकारी भरें।"
+    },
+    {
+        "q": "How to register as a freight forwarder?",
+        "a": "Go to 'Freight Forwarder Sign Up' and enter your agency name, license, and location."
+    },
+    {
+        "q": "क्या मैं कई आढ़ती के साथ काम कर सकता हूँ?",
+        "a": "हाँ, 'Add other Aadhati' विकल्प में कई आढ़ती जोड़ सकते हैं।"
+    },
+    {
+        "q": "Can I work with multiple commission agents?",
+        "a": "Yes, you can use the 'Add other Aadhati' option to link with more agents."
+    },
+
+    
+    {
+        "q": "ड्राइवर प्रोफाइल कैसे बनाएं?",
+        "a": "'Driver Sign Up' में वाहन नंबर, परमिट और ड्राइविंग लाइसेंस की जानकारी भरें।"
+    },
+    {
+        "q": "How to register as a driver?",
+        "a": "In 'Driver Sign Up', fill in vehicle registration, driving license, and permit details."
+    },
+    {
+        "q": "मैंने किन राज्यों में ट्रक चलाया है, यह कैसे जोड़ूं?",
+        "a": "'States driven through' में राज्य चुनकर जानकारी जोड़ें।"
+    },
+    {
+        "q": "How do I add states I've driven through?",
+        "a": "Select the relevant states under 'States driven through' in your driver profile."
+    },
+
+   
+    {
+        "q": "APMC प्रोफाइल कैसे बनाएं?",
+        "a": "'APMC Office Sign Up' में पद, कुल आढ़ती, लादानी, ट्रांसपोर्टर और स्टाफ की जानकारी दर्ज करें।"
+    },
+    {
+        "q": "How to register APMC profile?",
+        "a": "In 'APMC Office Sign Up', fill designation, number of commission agents, Ladanis, transporters, and staff."
+    },
+    {
+        "q": "क्या मैं ब्लैकलिस्टेड आढ़ती जोड़ सकता हूँ?",
+        "a": "हाँ, 'Add List of Blacklisted Adhaties' सेक्शन में जाकर आप जोड़ सकते हैं।"
+    },
+    {
+        "q": "Can I list blacklisted agents?",
+        "a": "Yes, go to 'Add List of Blacklisted Adhaties' to add them."
+    },
+
+    
+    {
+        "q": "पुलिस पोस्ट प्रोफाइल कैसे बनाएं?",
+        "a": "'HP Police Sign Up' में अपनी रैंक, ड्यूटी स्थान और सीजन की जानकारी जोड़ें।"
+    },
+    {
+        "q": "How to create police post profile?",
+        "a": "Use 'HP Police Sign Up' to enter your designation, duty location, and apple season assignment."
+    },
+    {
+        "q": "वाहन की जानकारी कैसे दर्ज करें?",
+        "a": "वाहन नंबर, लोडेड बॉक्स की संख्या और गंतव्य स्थान दर्ज करें। फोटो क्लिक करें।"
+    },
+    {
+        "q": "How do I enter vehicle data?",
+        "a": "Enter vehicle number, number of boxes loaded, and destination. Click a photo of the vehicle."
+    },
+    
+    {
+        "q": "What orchard details should I enter?",
+        "a": "Enter the orchard name, number of fruiting trees, expected harvest date, and mark the GPS location using the free marker tool.",
+        "q_hi": "मुझे अपने बगीचे की कौन-कौन सी जानकारी दर्ज करनी चाहिए?",
+        "a_hi": "बगीचे का नाम, फलदार पेड़ों की संख्या, अनुमानित कटाई की तारीख और GPS के माध्यम से सीमाएं फ्री मार्कर टूल से चिन्हित करें।"
+    },
+    {
+        "q": "How many orchards can I add?",
+        "a": "You can add up to 7 orchards per profile. For more, use another user name.",
+        "q_hi": "मैं अधिकतम कितने बगीचे जोड़ सकता हूँ?",
+        "a_hi": "आप एक प्रोफ़ाइल में अधिकतम 7 बगीचे जोड़ सकते हैं। अधिक जोड़ने के लिए नया उपयोगकर्ता नाम बनाएं।"
+    },
+    {
+        "q": "Why is orchard location mapping important?",
+        "a": "It helps the system calculate the total area and forecast transportation requirements.",
+        "q_hi": "बगीचे की लोकेशन मैपिंग क्यों जरूरी है?",
+        "a_hi": "यह प्रणाली को कुल क्षेत्रफल और परिवहन की जरूरतों का पूर्वानुमान लगाने में मदद करता है।"
+    },
+    {
+        "q": "How does BML help with apple farming logistics?",
+        "a": "BML connects apple growers with pack houses, buyers, and logistics providers to streamline harvesting and delivery.",
+        "q_hi": "BML सेब की खेती में लॉजिस्टिक्स के लिए कैसे मदद करता है?",
+        "a_hi": "BML सेब उत्पादकों को पैक हाउस, खरीदारों और लॉजिस्टिक्स प्रदाताओं से जोड़ता है ताकि कटाई और डिलीवरी आसान हो सके।"
+    },
+    {
+        "q": "Can I update the date of harvesting?",
+        "a": "Yes, the harvest date is editable to accommodate changes due to labor availability, crates, weather, or market prices.",
+        "q_hi": "क्या मैं कटाई की तारीख को अपडेट कर सकता हूँ?",
+        "a_hi": "हाँ, श्रमिक, क्रेट्स, मौसम या बाजार भाव के अनुसार आप कटाई की तारीख को बदल सकते हैं।"
+    },
+    {
+        "q": "How do I register as a freight forwarder?",
+        "a": "Go to the Freight Forwarder Sign Up and enter agency name, address, license, and forwarding data.",
+        "q_hi": "मैं फ्रेट फॉरवर्डर के रूप में कैसे पंजीकरण करूं?",
+        "a_hi": "'Freight Forwarder Sign Up' में जाकर एजेंसी का नाम, पता, लाइसेंस और फॉरवर्डिंग जानकारी भरें।"
+    },
+    {
+        "q": "Can I work with multiple commission agents?",
+        "a": "Yes, use the 'Add other Aadhati' option to connect with multiple agents.",
+        "q_hi": "क्या मैं एक से अधिक आढ़ती के साथ काम कर सकता हूँ?",
+        "a_hi": "हाँ, 'Add other Aadhati' विकल्प का उपयोग कर आप कई आढ़तियों से जुड़ सकते हैं।"
+    },
+    {
+        "q": "What documents are needed for driver sign-up?",
+        "a": "Vehicle registration number, driver's license, RTO-approved payload capacity, and driving permit.",
+        "q_hi": "ड्राइवर साइन अप के लिए कौन-कौन से दस्तावेज चाहिए?",
+        "a_hi": "वाहन पंजीकरण संख्या, ड्राइविंग लाइसेंस, RTO द्वारा अनुमोदित पेलोड क्षमता और परमिट।"
+    },
+    {
+        "q": "How does the bidding process work for growers?",
+        "a": "Growers list their crops, and buyers bid on open consignments. The highest accepted bid is finalized.",
+        "q_hi": "बोली प्रक्रिया किसानों के लिए कैसे काम करती है?",
+        "a_hi": "किसान अपनी फसलें सूचीबद्ध करते हैं, खरीदार खुली कंसाइनमेंट पर बोली लगाते हैं। उच्चतम स्वीकृत बोली को अंतिम रूप दिया जाता है।"
+    },
+    {
+        "q": "Does BML offer insurance options?",
+        "a": "Yes, insurance is recommended and can be added automatically during vehicle booking.",
+        "q_hi": "क्या BML बीमा विकल्प प्रदान करता है?",
+        "a_hi": "हाँ, बीमा की सिफारिश की जाती है और वाहन बुकिंग के समय इसे स्वचालित रूप से जोड़ा जा सकता है।"
+    },
+    
+  {
+    "q": "Ask about adhati",
+    "a": "आढ़ती, जिसे कमीशन एजेंट भी कहा जाता है, किसानों और खरीदारों के बीच मध्यस्थ होते हैं। वे बोली प्रक्रिया को संचालित करते हैं, भुगतान सुनिश्चित करते हैं और मंडी में लेन-देन का संचालन करते हैं।"
+  },
+  {
+    "q": "Ask about Orchards",
+    "a": "ऑर्चर्ड (बगीचे) वह स्थान होता है जहाँ सेब के पेड़ लगाए जाते हैं। ऐप में किसान अपने प्रत्येक ऑर्चर्ड का नाम, फलदार पेड़ों की संख्या, और कटाई की संभावित तिथि दर्ज कर सकता है ताकि फसल की ट्रैकिंग और लॉजिस्टिक प्लानिंग बेहतर हो सके।"
+  },
+  {
+    "q": "Ask About us",
+    "a": "BML Chat Bot एक AI आधारित समाधान है जिसे ऋषिश्वर इंडस्ट्री, ग्वालियर द्वारा विकसित किया गया है। इसका उद्देश्य एप्पल किसानों, आढ़तियों, पैक हाउस, लादानी, और लॉजिस्टिक एजेंसियों को एकीकृत प्लेटफॉर्म प्रदान करना है।"
+  },
+  {
+    "q": "Ask About Apple  Farming",
+    "a": "सेब की खेती एक मौसम-आधारित कृषि प्रक्रिया है जिसमें बगीचे की देखभाल, समय पर सिंचाई, कटाई, ग्रेडिंग और विपणन शामिल होता है। हमारी ऐप इस प्रक्रिया को डिजिटली सपोर्ट करती है जिससे किसान अधिक आय अर्जित कर सके।"
+  },
+  {
+    "q": "Ask About Freight Forwardes",
+    "a": "फ्रेट फॉरवर्डर वे एजेंसियां हैं जो सेब के डिब्बों की ट्रांसपोर्टिंग की जिम्मेदारी लेती हैं। वे पैक हाउस, आढ़ती और लादानी से जुड़े रहते हैं और ट्रक बुकिंग, लोडिंग, और इंश्योरेंस प्रक्रिया को संभालते हैं।"
+  },
+  {
+    "q": "How to find Drivers",
+    "a": "ऐप में 'Search Vehicles' या 'Pick Up Provider' सेक्शन से आप उपलब्ध ड्राइवर्स को लोकेशन और लोड के अनुसार देख सकते हैं। ड्राइवर प्रोफाइल में गाड़ी नंबर, परमिट, और अनुभव की जानकारी होती है।"
+  },
+  {
+    "q": "Bidding Process",
+    "a": "किसान अपनी फसल के लिए बोली खोलता है। लादानी या खरीदार ऐप पर बोली लगाते हैं। सर्वोच्च बोली स्वीकृत होने पर पेमेंट और कंसाइनमेंट प्रोसेस शुरू होता है। यह पूरी प्रक्रिया डिजिटल और पारदर्शी होती है।"
+  },
+  {
+    "q": "About us",
+    "a": "BML Chat Bot is an AI assistant developed by Rishishwar Industry, Gwalior. It is designed to support stakeholders across the apple supply chain — growers, pack houses, commission agents, buyers, freight forwarders, and transport unions — through a unified smart platform."
   }
 ]
+
+
+
+
+
+
+
