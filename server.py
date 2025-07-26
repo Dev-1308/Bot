@@ -11,10 +11,9 @@ CORS(app)
 # 🔑 Set your OpenAI API Key here
 openai.api_key = "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"
 
-# Load FAQs
+# Load FAQs (not nested by role anymore)
 with open("faqs.json", "r", encoding="utf-8") as f:
     faq_data = json.load(f)
-
 
 def find_faq_answer(user_msg):
     questions = [faq["q"] for faq in faq_data]
@@ -38,16 +37,16 @@ def ask_gpt(message, lang):
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        return "GPT सेवा उपलब्ध नहीं है। कृपया बाद में प्रयास करें।"
+        return "सेवा उपलब्ध नहीं है। कृपया बाद में प्रयास करें।"
 
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
     msg = data.get("message", "")
-
+    lang = data.get("lang", "en")  # default to English
 
     # First, try FAQ match
-    faq_answer = find_faq_answer(msg, role)
+    faq_answer = find_faq_answer(msg)
     if faq_answer:
         return jsonify({"reply": faq_answer})
 
@@ -56,9 +55,6 @@ def chat():
     return jsonify({"reply": gpt_reply})
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Render dynamically sets PORT
+    port = int(os.environ.get("PORT", 5000))  # For Render or local dev
     print(f"🚀 Starting Flask on http://0.0.0.0:{port}")
     app.run(host="0.0.0.0", port=port)
-
-   
-# If you want to run this server, make sure to set your OpenAI API key in the code above.   
