@@ -65,6 +65,7 @@ def generate_chart():
             return jsonify({"error": "Request body must be JSON."}), 400
             
         categories = data['categories']
+        quality = data['quality']
         weights = data['weights']
         boxes = data['boxes']
     except (KeyError, TypeError):
@@ -112,7 +113,7 @@ def generate_chart():
     plt.subplots_adjust(left=0.1, bottom=0.25)
 
     # 4. Final touches
-    plt.title("Consignment Wise Procurement Analytics", fontsize=16, weight='bold')
+    plt.title(f"Consignment Wise Procurement Analytics {quality}", fontsize=16, weight='bold')
     ax1.grid(True, linestyle='--', alpha=0.7)
     
     # 5. Save chart to an in-memory buffer
