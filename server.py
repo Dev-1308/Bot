@@ -55,45 +55,76 @@ def chat():
 
 @app.route("/chart", methods=["POST"])
 def generate_chart():
-    data = request.get_json()
+    """
+    Generates a styled chart from POST request data and returns it as a PNG image.
+    """
+    # 1. Get data from the POST request
     try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Request body must be JSON."}), 400
+            
         categories = data['categories']
         weights = data['weights']
         boxes = data['boxes']
     except (KeyError, TypeError):
-        return jsonify({"error": "Missing or invalid 'categories', 'weights', or 'boxes'."}), 400
+        return jsonify({"error": "Missing or invalid 'categories', 'weights', or 'boxes' keys."}), 400
 
+    # Validate that all lists have the same length
     if not (len(categories) == len(weights) == len(boxes)):
-        return jsonify({"error": "All lists must be of the same length."}), 400
+        return jsonify({"error": "All lists ('categories', 'weights', 'boxes') must be of the same length."}), 400
 
-    # Create figure and plot
-    fig, ax1 = plt.subplots(figsize=(10, 6))
-    canvas = FigureCanvas(fig)
+    # 2. Create the chart
+    fig, ax1 = plt.subplots(figsize=(14, 8))
+    fig.patch.set_facecolor('gold') # Set outer background
 
-    ax1.set_xlabel("Categories")
-    ax1.set_ylabel("Weight (Kg)", color="green")
-    ax1.plot(categories, weights, color="green", marker='o', label="Weight (Kg)")
-    ax1.tick_params(axis='y', labelcolor="green")
-    ax1.set_xticklabels(categories, rotation=45)
+    # Set plot area background and border
+    ax1.set_facecolor('#F0F8FF') 
+    for spine in ax1.spines.values():
+        spine.set_edgecolor('c')
+        spine.set_linewidth(1.5)
+
+    # Plot the data lines
+    ax1.plot(categories, weights, color='blue', marker='o', linewidth=2.5, label="Weight (Kg)")
+    ax1.set_ylabel("Weight (Kg)", color="blue", fontsize=12, weight='bold')
+    ax1.tick_params(axis='y', labelcolor="blue")
 
     ax2 = ax1.twinx()
-    ax2.set_ylabel("No. of Boxes", color="blue")
-    ax2.plot(categories, boxes, color="blue", marker='s', label="No. of Boxes")
-    ax2.tick_params(axis='y', labelcolor="blue")
+    ax2.plot(categories, boxes, color='red', marker='s', linewidth=2.5, label="No. of Boxes")
+    ax2.set_ylabel("No. of Boxes", color="red", fontsize=12, weight='bold')
+    ax2.tick_params(axis='y', labelcolor="red")
 
-    ax1.legend(loc="upper left")
-    ax2.legend(loc="upper right")
+    # 3. Add the data table at the bottom
+    ax1.set_xticks([]) # Hide original x-axis ticks
+    
+    the_table = plt.table(cellText=[weights, boxes],
+                          rowLabels=['Weight (Kg)', 'No. of Boxes'],
+                          colLabels=categories,
+                          loc='bottom',
+                          cellLoc='center',
+                          rowLoc='center')
+    
+    the_table.auto_set_font_size(False)
+    the_table.set_fontsize(10)
+    the_table.scale(1, 1.8)
 
-    plt.title("Weight and Box Count per Category")
-    plt.tight_layout()
-    plt.grid(True)
+    # Adjust layout to make room for the table
+    plt.subplots_adjust(left=0.1, bottom=0.25)
 
-    # Save to in-memory buffer
+    # 4. Final touches
+    plt.title("Consignment Wise Procurement Analytics", fontsize=16, weight='bold')
+    ax1.grid(True, linestyle='--', alpha=0.7)
+    
+    # 5. Save chart to an in-memory buffer
     buf = io.BytesIO()
+    canvas = FigureCanvas(fig)
     canvas.print_png(buf)
+    plt.close(fig) # Close the figure to free up memory
     buf.seek(0)
 
+    # 6. Return the image as a response
     return send_file(buf, mimetype='image/png')
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
