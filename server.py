@@ -7,6 +7,10 @@ import os
 import io
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+import io
+import matplotlib
+matplotlib.use('Agg')
+import numpy as np
 
 app = Flask(__name__)
 CORS(app)
@@ -125,6 +129,93 @@ def generate_chart():
 
     # 6. Return the image as a response
     return send_file(buf, mimetype='image/png')
+
+
+
+
+
+
+# Changed method from GET to POST to allow for a request body
+@app.route('/generate_chart', methods=['POST'])
+def generate_chart_module():
+    """
+    Generates the styled chart from data provided in a POST request.
+    """
+    # 1. Get data from the POST request body
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Request body must be JSON."}), 400
+
+        categories = data['categories']
+        weights = data['weights']
+        per_kg_prices = data['per_kg_prices']
+        landing_costs = data['landing_costs']
+    except (KeyError, TypeError):
+        return jsonify({"error": "Request body must contain 'categories', 'weights', 'per_kg_prices', and 'landing_costs'."}), 400
+
+    # The rest of the chart generation code remains the same
+    x_values = np.arange(len(categories))
+
+    # 2. Create the chart
+    fig, ax1 = plt.subplots(figsize=(17, 8))
+    ax2 = ax1.twinx()
+
+    fig.set_facecolor('gold')
+    ax1.set_facecolor('#F0F8FF')
+
+    ax1.plot(x_values, weights, color='blue', marker='o', linewidth=3)
+    ax2.plot(x_values, per_kg_prices, color='red', marker='o', linewidth=3)
+    ax2.plot(x_values, landing_costs, color='green', marker='o', linewidth=3)
+
+    ax1.set_ylabel('Fruit Category Wise Weight in Kg', color='black', fontsize=12, weight='bold')
+    ax1.set_ylim(0, 2500)
+    ax2.set_ylim(0, 100)
+
+    plt.title(
+        'Consignment Wise Procurement Analytics...\nfor Buyers to pick up or leave the Consignment Bidding',
+        fontsize=14, weight='bold'
+    )
+
+    ax1.set_xticks([])
+    cell_text = [weights, per_kg_prices, landing_costs]
+    row_labels = ['Weight in Kg', 'Per Kg Price', 'Landing Cost']
+    row_colors = ['blue', 'red', 'green']
+
+    the_table = plt.table(
+        cellText=cell_text, colLabels=categories, rowLabels=row_labels,
+        rowColours=row_colors, loc='bottom', cellLoc='center'
+    )
+    the_table.auto_set_font_size(False)
+    the_table.set_fontsize(10)
+    the_table.scale(1, 2.5)
+
+    cells = the_table.get_celld()
+    for j in range(len(categories)):
+        cell = cells[(0, j)]
+        cell.set_height(cell.get_height() * 1.2)
+        cell.set_text_props(va='center')
+
+    for i in range(1, len(row_labels) + 1):
+        for j in range(len(categories)):
+            cells[(i, j)].set_height(cells[(i, j)].get_height() * 1.2)
+
+    plt.subplots_adjust(left=0.1, bottom=0.3)
+    ax1.grid(True, color='c', linestyle='--')
+    for spine in ax1.spines.values():
+        spine.set_edgecolor('c')
+        spine.set_linewidth(2)
+
+    # 3. Save chart to an in-memory buffer
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png', bbox_inches='tight')
+    plt.close(fig)
+    buf.seek(0)
+
+    # 4. Convert to uint8 list and return
+    image_uint8_list = list(buf.getvalue())
+    return jsonify({"image": image_uint8_list})
+
 
 
 if __name__ == "__main__":
