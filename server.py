@@ -169,8 +169,13 @@ def generate_chart_module():
     ax2.plot(x_values, landing_costs, color='green', marker='o', linewidth=3)
 
     ax1.set_ylabel('Fruit Category Wise Weight in Kg', color='black', fontsize=12, weight='bold')
-    ax1.set_ylim(0, 2500)
-    ax2.set_ylim(0, 100)
+    max_weight = max(weights) if weights else 0
+    max_price = max(max(per_kg_prices) if per_kg_prices else 0, 
+                max(landing_costs) if landing_costs else 0)
+    weight_axis_limit = max_weight * 1.2 if max_weight > 0 else 2500
+    price_axis_limit = max_price * 1.2 if max_price > 0 else 100
+    ax1.set_ylim(0, weight_axis_limit)
+    ax2.set_ylim(0, price_axis_limit)
 
     plt.title(
         'Consignment Wise Procurement Analytics...\nfor Buyers to pick up or leave the Consignment Bidding',
