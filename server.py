@@ -85,9 +85,9 @@ def chat():
         return jsonify({"error": "Internal server error"}), 500
 
 @app.route("/chart", methods=["POST"])
+@app.route("/chart", methods=["POST"])
 def generate_chart():
-
-    """Generate a modern styled bar-line chart from POST data"""
+    """Generate a modern styled bar-line chart and return as raw image bytes (UInt8List)"""
     try:
         # 1. Get and validate data
         data = request.get_json()
@@ -112,7 +112,7 @@ def generate_chart():
         fig, ax1 = plt.subplots(figsize=(14, 8.5), facecolor='gold')
         fig.subplots_adjust(left=0.08, right=0.88, top=0.9, bottom=0.25)
         
-        # 3. Enhanced Line Plot (Weights)
+        # 3. Line Plot (Weights) - Dark Blue
         line_color = '#22258d'
         ax1.plot(categories, weights, 
                  color=line_color,
@@ -135,7 +135,7 @@ def generate_chart():
         ax1.tick_params(axis='y', colors=line_color, labelsize=11)
         ax1.set_ylim(0, max(weights) * 1.25)
         
-        # 4. Enhanced Bar Plot (Boxes)
+        # 4. Bar Plot (Boxes)
         ax2 = ax1.twinx()
         ax2.set_facecolor('#f5f5f5')
         ax1.set_zorder(ax2.get_zorder() + 1)
@@ -170,12 +170,14 @@ def generate_chart():
         ax2.tick_params(axis='y', colors='#22258d', labelsize=11)
         ax2.set_ylim(0, max(boxes) * 1.4)
         
-        # 5. Enhanced Titles and labels
-        fig.suptitle(f"PROCUREMENT ANALYTICS - {quality} Quality", fontsize=18, y=0.98, color='#000000', fontweight='bold')
-        plt.title("Weight vs Box Count by Consignment", fontsize=12, pad=20, color='#000000', fontweight='bold')
+        # 5. Title and labels
+        fig.suptitle(f"PROCUREMENT ANALYTICS - {quality} Quality", 
+                    fontsize=18, y=0.98, color='#000000', fontweight='bold')
+        plt.title("Weight vs Box Count by Consignment", 
+                 fontsize=12, pad=20, color='#000000', fontweight='bold')
         ax1.tick_params(axis='x', rotation=0, labelsize=11, colors='#555555')
 
-        # 6. Enhanced Data Table with colored columns
+        # 6. Data Table with colored columns
         cell_text = [[f"{w:,}" for w in weights], boxes]
         table = plt.table(cellText=cell_text,
                           rowLabels=['WEIGHT (Kg)', 'BOXES'],
@@ -186,8 +188,7 @@ def generate_chart():
                           loc='bottom',
                           bbox=[0, -0.3, 1, 0.2])
         
-        table.auto_set_font_size(False)
-        table.set_fontsize(10)
+        # Style table cells
         for key, cell in table.get_celld().items():
             cell.set_edgecolor('w')
             row_idx, col_idx = key
@@ -199,10 +200,11 @@ def generate_chart():
             elif row_idx == -1 and col_idx > -1:  # Column headers
                 cell.set_text_props(weight='bold', color='white')
 
-        # 7. Enhanced Legend
+        # 7. Legend with grade categories
         handles1, labels1 = ax1.get_legend_handles_labels()
         handles2 = [Patch(facecolor=color, label=label) for color, label in 
-                    [('#d90429', 'AAA Grade'), ('#f97316', 'AA Grade'), ('#22c55e', 'GP Grade'), ('#f472b6', 'Mix/Pear')]]
+                    [('#d90429', 'AAA Grade'), ('#f97316', 'AA Grade'), 
+                     ('#22c55e', 'GP Grade'), ('#f472b6', 'Mix/Pear')]]
         labels2 = [h.get_label() for h in handles2]
 
         fig.legend(handles1 + handles2, labels1 + labels2,
@@ -219,22 +221,28 @@ def generate_chart():
         ax1.grid(False)
         ax2.grid(False)
 
-        # Watermark
+        # Add watermark
         fig.text(0.5, 0.5, 'FASCORP', 
                  fontsize=100, color='grey', 
                  ha='center', va='center', alpha=0.1, rotation=30)
         
-        # Save to buffer
+        # 9. Save to bytes buffer and return as raw bytes
         buf = io.BytesIO()
         plt.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor=fig.get_facecolor())
         plt.close(fig)
         buf.seek(0)
-
-        return send_file(buf, mimetype='image/png')
+        
+        # Return as raw bytes (UInt8List)
+        return Response(
+            buf.getvalue(),
+            mimetype='image/png',
+            headers={'Content-Disposition': 'attachment;filename=chart.png'}
+        )
 
     except Exception as e:
         app.logger.error(f"Chart generation error: {str(e)}")
         return jsonify({"error": "Failed to generate chart"}), 500
+
 def health_check():
     return jsonify({"status": "healthy", "version": "1.0.0"})
 
