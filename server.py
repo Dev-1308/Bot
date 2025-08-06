@@ -141,9 +141,7 @@ def generate_chart():
     
     # 4. Bar Plot (Boxes)
     ax2 = ax1.twinx()
-    ax2.set_facecolor('#f5f5f5')
-    ax1.set_zorder(ax2.get_zorder() + 1)
-    ax1.patch.set_visible(False)
+    
 
     bar_colors = ['#d90429', '#d90429', '#f97316', '#f97316', '#22c55e', '#f472b6']
     if len(categories) != len(bar_colors):
