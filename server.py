@@ -51,6 +51,18 @@ def ask_gpt(message, lang):
     except Exception as e:
         return "सेवा उपलब्ध नहीं है। कृपया बाद में प्रयास करें।"
 
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.get_json()
+    msg = data.get("message", "")
+    lang = data.get("lang", "en")
+    faq_answer = find_faq_answer(msg)
+    if faq_answer:
+        return jsonify({"reply": faq_answer})
+    gpt_reply = ask_gpt(msg, lang)
+    return jsonify({"reply": gpt_reply})
+
+# Define the chart generation route
 @app.route("/chart", methods=["POST"])
 def generate_chart():
     """
@@ -72,160 +84,168 @@ def generate_chart():
         # Catch potential issues if data is not a dict or keys are missing
         return jsonify({"error": f"Invalid JSON data: {e}"}), 400
 
+    # --- ROBUSTNESS FIX 1: VALIDATE DATA ---
     # Validate that all lists have the same length
     if not (len(categories) == len(weights) == len(boxes)):
         return jsonify({"error": "All lists ('categories', 'weights', 'boxes') must be of the same length."}), 400
 
-    # 2. Setup Modern Style from your function
-    sns.set_style("whitegrid", {'grid.linestyle': ':', 'grid.color': '0.8'})
-    plt.rcParams['font.family'] = 'DejaVu Sans'
-    plt.rcParams['axes.titleweight'] = 'bold'
-    plt.rcParams['axes.labelweight'] = 'bold'
+    # Validate that the lists are not empty
+    if not categories:
+        return jsonify({"error": "Input lists cannot be empty."}), 400
     
-    # Create figure with modern aesthetics and a golden background
-    fig, ax1 = plt.subplots(figsize=(14, 8.5), facecolor='gold') # Set outer background to gold
-    fig.subplots_adjust(left=0.08, right=0.88, top=0.9, bottom=0.1)
-    
-    # 3. Enhanced Line Plot (Weights) - now in BLUE
-    line_color = '#005f73' # A nice, dark blue
-    ax1.plot(categories, weights, 
-             color=line_color,
-             marker='D',
-             markersize=8,
-             markeredgecolor='white',
-             markeredgewidth=1.5,
-             linewidth=3, 
-             label="Weight (Kg)",
-             path_effects=[path_effects.withStroke(linewidth=5, foreground='white')])
-    
-    # Add data labels for the line plot
-    for x, y in zip(categories, weights):
-        ax1.annotate(f"{y:,} kg", (x, y),
-                     textcoords="offset points", xytext=(0,15), ha='center',
-                     fontsize=10, fontweight='bold', color='white',
-                     bbox=dict(boxstyle='round,pad=0.3', facecolor=line_color, edgecolor='white', alpha=0.9))
-
-    ax1.set_ylabel("Weight (Kg)", color=line_color, fontsize=13, labelpad=15)
-    ax1.tick_params(axis='y', colors=line_color, labelsize=11)
-    ax1.set_ylim(0, max(weights) * 1.25)
-    
-    # 4. Modern Bar Plot (Boxes) on a shared X-axis with custom colors
-    ax2 = ax1.twinx()
-    
-    # --- PLOT LAYERING FIX ---
-    ax2.set_facecolor('#f5f5f5')
-    ax1.set_zorder(ax2.get_zorder() + 1)
-    ax1.patch.set_visible(False)
-    # --- END FIX ---
-
-    # Define the custom color sequence for the bars
-    bar_colors = ['#d90429', '#d90429', '#f97316', '#f97316', '#22c55e', '#f472b6']
-    if len(categories) != len(bar_colors):
-        # Fallback to a single color if the number of categories is not 6
-        bar_colors = ['#3a7bd5'] * len(categories)
-
-    bars = ax2.bar(categories, boxes, 
-                   color=bar_colors,
-                   alpha=0.9, 
-                   width=0.5,
-                   edgecolor='white',
-                   linewidth=1.5,
-                   label="No. of Boxes")
-
-    # Add value labels for the bar plot ("No of boxes")
-    for bar in bars:
-        height = bar.get_height()
-        ax2.annotate(f"{height}",
-                     xy=(bar.get_x() + bar.get_width() / 2, height),
-                     xytext=(0, 5),
-                     textcoords="offset points",
-                     ha='center', va='bottom',
-                     fontsize=10,
-                     fontweight='bold',
-                     color=bar.get_facecolor(),
-                     path_effects=[path_effects.withStroke(linewidth=2, foreground='white')])
-
-
-    ax2.set_ylabel("No. of Boxes", color='#555555', fontsize=13, labelpad=15)
-    ax2.tick_params(axis='y', colors='#555555', labelsize=11)
-    ax2.set_ylim(0, max(boxes) * 1.4)
-    
-    # 5. Modern Title and X-axis labels
-    fig.suptitle(f"PROCUREMENT ANALYTICS - {quality} Quality", fontsize=18, y=0.98, color='#333333')
-    plt.title("Weight vs Box Count by Consignment", fontsize=12, pad=20, color='#777777')
-    ax1.tick_params(axis='x', rotation=45, labelsize=11, colors='#555555')
-
-    # 6. Enhanced Data Table - with updated row colors
-    cell_text = [[f"{w:,}" for w in weights], boxes]
-    row_labels = ['WEIGHT (Kg)', 'BOXES']
-    row_colours = [line_color, '#808080'] # Blue for weight, neutral grey for boxes
-    
-    table = plt.table(cellText=cell_text,
-                      rowLabels=row_labels,
-                      rowColours=row_colours,
-                      colLabels=categories,
-                      cellLoc='center',
-                      loc='bottom',
-                      bbox=[0, -0.35, 1, 0.2])
-    
-    table.auto_set_font_size(False)
-    table.set_fontsize(10)
-    
-    # --- TABLE COLUMN COLORING ---
-    for key, cell in table.get_celld().items():
-        cell.set_edgecolor('w')
-        row, col = key
-
-        # Style row labels ('WEIGHT (Kg)', 'BOXES')
-        if col == -1:
-            cell.set_text_props(color='white')
-            continue
-
-        # Get the background color for the current column
-        # Fallback to grey if there are more columns than defined colors
-        color = bar_colors[col] if col < len(bar_colors) else '#808080'
-        cell.set_facecolor(color)
+    # --- ROBUSTNESS FIX 2: WRAP PLOTTING IN TRY/EXCEPT ---
+    try:
+        # 2. Setup Modern Style from your function
+        sns.set_style("whitegrid", {'grid.linestyle': ':', 'grid.color': '0.8'})
+        plt.rcParams['font.family'] = 'DejaVu Sans'
+        plt.rcParams['axes.titleweight'] = 'bold'
+        plt.rcParams['axes.labelweight'] = 'bold'
         
-        # Style the text inside the colored cells to be white for contrast
-        if row == -1: # Column headers ('C1', 'C2', etc.)
-            cell.set_text_props(weight='bold', color='white')
-        else: # Data cells
-            cell.set_text_props(color='white')
-    # --- END TABLE COLORING ---
+        # Create figure with modern aesthetics and a golden background
+        fig, ax1 = plt.subplots(figsize=(14, 8.5), facecolor='gold') # Set outer background to gold
+        fig.subplots_adjust(left=0.08, right=0.88, top=0.9, bottom=0.1)
+        
+        # 3. Enhanced Line Plot (Weights) - now in BLUE
+        line_color = '#005f73' # A nice, dark blue
+        ax1.plot(categories, weights, 
+                 color=line_color,
+                 marker='D',
+                 markersize=8,
+                 markeredgecolor='white',
+                 markeredgewidth=1.5,
+                 linewidth=3, 
+                 label="Weight (Kg)",
+                 path_effects=[path_effects.withStroke(linewidth=5, foreground='white')])
+        
+        # Add data labels for the line plot
+        for x, y in zip(categories, weights):
+            ax1.annotate(f"{y:,} kg", (x, y),
+                         textcoords="offset points", xytext=(0,15), ha='center',
+                         fontsize=10, fontweight='bold', color='white',
+                         bbox=dict(boxstyle='round,pad=0.3', facecolor=line_color, edgecolor='white', alpha=0.9))
 
-    # 7. Modern Legend - with updated group names
-    handles1, labels1 = ax1.get_legend_handles_labels()
-    handles2 = [Patch(facecolor=color, label=label) for color, label in 
-                [('#d90429', 'AAA Red'), ('#f97316', 'AA Orange'), ('#22c55e', 'GP Green'), ('#f472b6', 'Mix Pink')]]
-    labels2 = [h.get_label() for h in handles2]
+        ax1.set_ylabel("Weight (Kg)", color=line_color, fontsize=13, labelpad=15)
+        ax1.tick_params(axis='y', colors=line_color, labelsize=11)
+        ax1.set_ylim(0, max(weights) * 1.25)
+        
+        # 4. Modern Bar Plot (Boxes) on a shared X-axis with custom colors
+        ax2 = ax1.twinx()
+        
+        # --- PLOT LAYERING FIX ---
+        ax2.set_facecolor('#f5f5f5')
+        ax1.set_zorder(ax2.get_zorder() + 1)
+        ax1.patch.set_visible(False)
+        # --- END FIX ---
 
-    legend = fig.legend(handles1 + handles2, labels1 + labels2,
-                        title="Legend",
-                        loc='upper right',
-                        bbox_to_anchor=(0.87, 0.88),
-                        frameon=True,
-                        framealpha=0.95,
-                        facecolor='white',
-                        edgecolor='#dddddd')
-    
-    # 8. Final Polish & Save to Buffer
-    ax1.set_xticks([]) # Hide original x-axis ticks
-    ax1.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
-    ax2.grid(False)
+        # Define the custom color sequence for the bars
+        bar_colors = ['#d90429', '#d90429', '#f97316', '#f97316', '#22c55e', '#f472b6']
+        if len(categories) != len(bar_colors):
+            # Fallback to a single color if the number of categories is not 6
+            bar_colors = ['#3a7bd5'] * len(categories)
 
-    # Add watermark
-    fig.text(0.5, 0.5, 'FASCORP', 
-             fontsize=100, color='grey', 
-             ha='center', va='center', alpha=0.1, rotation=30)
-    
-    # Save chart to an in-memory buffer
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor=fig.get_facecolor())
-    plt.close(fig) # Close the figure to free up memory
-    buf.seek(0)
+        bars = ax2.bar(categories, boxes, 
+                       color=bar_colors,
+                       alpha=0.9, 
+                       width=0.5,
+                       edgecolor='white',
+                       linewidth=1.5,
+                       label="No. of Boxes")
 
-    # 9. Return the image as a response
-    return send_file(buf, mimetype='image/png')
+        # Add value labels for the bar plot ("No of boxes")
+        for bar in bars:
+            height = bar.get_height()
+            ax2.annotate(f"{height}",
+                         xy=(bar.get_x() + bar.get_width() / 2, height),
+                         xytext=(0, 5),
+                         textcoords="offset points",
+                         ha='center', va='bottom',
+                         fontsize=10,
+                         fontweight='bold',
+                         color=bar.get_facecolor(),
+                         path_effects=[path_effects.withStroke(linewidth=2, foreground='white')])
+
+
+        ax2.set_ylabel("No. of Boxes", color='#555555', fontsize=13, labelpad=15)
+        ax2.tick_params(axis='y', colors='#555555', labelsize=11)
+        ax2.set_ylim(0, max(boxes) * 1.4)
+        
+        # 5. Modern Title and X-axis labels
+        fig.suptitle(f"PROCUREMENT ANALYTICS - {quality} Quality", fontsize=18, y=0.98, color='#333333')
+        plt.title("Weight vs Box Count by Consignment", fontsize=12, pad=20, color='#777777')
+        ax1.tick_params(axis='x', rotation=45, labelsize=11, colors='#555555')
+
+        # 6. Enhanced Data Table - with updated row colors
+        cell_text = [[f"{w:,}" for w in weights], boxes]
+        row_labels = ['WEIGHT (Kg)', 'BOXES']
+        row_colours = [line_color, '#808080'] # Blue for weight, neutral grey for boxes
+        
+        table = plt.table(cellText=cell_text,
+                          rowLabels=row_labels,
+                          rowColours=row_colours,
+                          colLabels=categories,
+                          cellLoc='center',
+                          loc='bottom',
+                          bbox=[0, -0.35, 1, 0.2])
+        
+        table.auto_set_font_size(False)
+        table.set_fontsize(10)
+        
+        # --- TABLE COLUMN COLORING ---
+        for key, cell in table.get_celld().items():
+            cell.set_edgecolor('w')
+            row, col = key
+
+            if col == -1:
+                cell.set_text_props(color='white')
+                continue
+
+            color = bar_colors[col] if col < len(bar_colors) else '#808080'
+            cell.set_facecolor(color)
+            
+            if row == -1:
+                cell.set_text_props(weight='bold', color='white')
+            else:
+                cell.set_text_props(color='white')
+        # --- END TABLE COLORING ---
+
+        # 7. Modern Legend - with updated group names
+        handles1, labels1 = ax1.get_legend_handles_labels()
+        handles2 = [Patch(facecolor=color, label=label) for color, label in 
+                    [('#d90429', 'AAA Red'), ('#f97316', 'AA Orange'), ('#22c55e', 'GP Green'), ('#f472b6', 'Mix Pink')]]
+        labels2 = [h.get_label() for h in handles2]
+
+        legend = fig.legend(handles1 + handles2, labels1 + labels2,
+                            title="Legend",
+                            loc='upper right',
+                            bbox_to_anchor=(0.87, 0.88),
+                            frameon=True,
+                            framealpha=0.95,
+                            facecolor='white',
+                            edgecolor='#dddddd')
+        
+        # 8. Final Polish & Save to Buffer
+        ax1.set_xticks([])
+        ax1.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
+        ax2.grid(False)
+
+        fig.text(0.5, 0.5, 'FASCORP', 
+                 fontsize=100, color='grey', 
+                 ha='center', va='center', alpha=0.1, rotation=30)
+        
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor=fig.get_facecolor())
+        plt.close(fig)
+        buf.seek(0)
+
+        # 9. Return the image as a response
+        return send_file(buf, mimetype='image/png')
+
+    except Exception as e:
+        # This will catch any errors during chart creation (e.g., from max() on empty list)
+        # and return a proper JSON error instead of crashing.
+        trace = traceback.format_exc()
+        print(f"Error generating chart: {e}\n{trace}")
+        return jsonify({"error": f"An internal error occurred on the server while generating the chart: {e}"}), 500
 
 
 
