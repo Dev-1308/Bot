@@ -88,19 +88,25 @@ def chat():
 @app.route("/chart", methods=["POST"])
 def generate_chart():
     """Generate a modern styled bar-line chart and return as raw image bytes (UInt8List)"""
-    try:
+
         # 1. Get and validate data
+    try:
         data = request.get_json()
         if not data:
             return jsonify({"error": "Request body must be JSON."}), 400
-            
+
         categories = data.get('categories', ['C1', 'C2', 'C3', 'C4', 'C5', 'C6'])
         quality = data.get('quality', 'Standard')
         weights = data.get('weights', [1200, 1550, 950, 1800, 1300, 1650])
         boxes = data.get('boxes', [80, 100, 65, 120, 90, 110])
+    except Exception as e:
+        # Catch potential issues if data is not a dict or keys are missing
+        return jsonify({"error": f"Invalid JSON data: {e}"}), 400
 
-        if not (len(categories) == len(weights) == len(boxes)):
-            return jsonify({"error": "All lists must be of the same length."}), 400
+    # Validate that all lists have the same length
+    if not (len(categories) == len(weights) == len(boxes)):
+        return jsonify({"error": "All lists ('categories', 'weights', 'boxes') must be of the same length."}), 400
+
 
         # 2. Setup modern style
         sns.set_style("whitegrid", {'grid.linestyle': ':', 'grid.color': '0.8'})
@@ -227,19 +233,14 @@ def generate_chart():
         # 9. Save to bytes buffer and return as raw bytes
         buf = io.BytesIO()
         plt.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor=fig.get_facecolor())
-        plt.close(fig)
+        plt.close(fig) # Close the figure to free up memory
         buf.seek(0)
+
+    # 9. Return the image as a response
+        return send_file(buf, mimetype='image/png')
         
         # Return as raw bytes (UInt8List)
-        return Response(
-            buf.getvalue(),
-            mimetype='image/png',
-            headers={'Content-Disposition': 'attachment;filename=chart.png'}
-        )
-
-    except Exception as e:
-        app.logger.error(f"Chart generation error: {str(e)}")
-        return jsonify({"error": "Failed to generate chart"}), 500
+        
 
 def health_check():
     return jsonify({"status": "healthy", "version": "1.0.0"})
