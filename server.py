@@ -62,6 +62,7 @@ def chat():
     gpt_reply = ask_gpt(msg, lang)
     return jsonify({"reply": gpt_reply})
 
+# Define the chart generation route
 @app.route("/chart", methods=["POST"])
 def generate_chart():
     """
@@ -93,16 +94,16 @@ def generate_chart():
     plt.rcParams['axes.titleweight'] = 'bold'
     plt.rcParams['axes.labelweight'] = 'bold'
     
-    # Create figure with modern aesthetics
-    fig, ax1 = plt.subplots(figsize=(14, 8.5), facecolor='#fafafa') # Increased height slightly for table
-    fig.subplots_adjust(left=0.08, right=0.88, top=0.9, bottom=0.1) # Adjusted layout
+    # Create figure with modern aesthetics and a golden background
+    fig, ax1 = plt.subplots(figsize=(14, 8.5), facecolor='gold') # Set outer background to gold
+    fig.subplots_adjust(left=0.08, right=0.88, top=0.9, bottom=0.1)
     
-    # Set a subtle background color for the plot area
+    # Set a subtle background color for the plot area (graph bg)
     ax1.set_facecolor('#f5f5f5')
 
     # 3. Enhanced Line Plot (Weights)
     ax1.plot(categories, weights, 
-             color='#00a859',       # Modern green
+             color='#007f5f',       # A slightly darker green for better contrast
              marker='D',            # Diamond markers
              markersize=8,
              markeredgecolor='white',
@@ -112,22 +113,37 @@ def generate_chart():
              zorder=3,
              path_effects=[path_effects.withStroke(linewidth=5, foreground='white')])
     
-    ax1.set_ylabel("Weight (Kg)", color='#00a859', fontsize=13, labelpad=15)
-    ax1.tick_params(axis='y', colors='#00a859', labelsize=11)
+    # Add data labels for the line plot
+    for x, y in zip(categories, weights):
+        ax1.annotate(f"{y:,} kg", (x, y),
+                     textcoords="offset points", xytext=(0,15), ha='center',
+                     fontsize=10, fontweight='bold', color='white',
+                     bbox=dict(boxstyle='round,pad=0.3', facecolor='#007f5f', edgecolor='white', alpha=0.9))
+
+    ax1.set_ylabel("Weight (Kg)", color='#007f5f', fontsize=13, labelpad=15)
+    ax1.tick_params(axis='y', colors='#007f5f', labelsize=11)
     ax1.set_ylim(0, max(weights) * 1.25)
     
-    # 4. Modern Bar Plot (Boxes) on a shared X-axis
+    # 4. Modern Bar Plot (Boxes) on a shared X-axis with custom colors
     ax2 = ax1.twinx()
+    
+    # Define the custom color sequence for the bars
+    # NOTE: This assumes there will be 6 categories to match the color list.
+    bar_colors = ['#d90429', '#d90429', '#f97316', '#f97316', '#22c55e', '#f472b6']
+    if len(categories) != len(bar_colors):
+        # Fallback to a single color if the number of categories is not 6
+        bar_colors = ['#3a7bd5'] * len(categories)
+
     bars = ax2.bar(categories, boxes, 
-                   color='#3a7bd5',       # Modern blue
-                   alpha=0.85, 
+                   color=bar_colors,
+                   alpha=0.9, 
                    width=0.5,
                    edgecolor='white',
                    linewidth=1.5,
                    label="No. of Boxes",
                    zorder=2)
 
-    # Add value labels for the bar plot
+    # Add value labels for the bar plot ("No of boxes")
     for bar in bars:
         height = bar.get_height()
         ax2.annotate(f"{height}",
@@ -137,21 +153,24 @@ def generate_chart():
                      ha='center', va='bottom',
                      fontsize=10,
                      fontweight='bold',
-                     color='#3a7bd5')
+                     color=bar.get_facecolor(), # Label color matches bar color
+                     path_effects=[path_effects.withStroke(linewidth=2, foreground='white')])
 
-    ax2.set_ylabel("No. of Boxes", color='#3a7bd5', fontsize=13, labelpad=15)
-    ax2.tick_params(axis='y', colors='#3a7bd5', labelsize=11)
+
+    ax2.set_ylabel("No. of Boxes", color='#555555', fontsize=13, labelpad=15)
+    ax2.tick_params(axis='y', colors='#555555', labelsize=11)
     ax2.set_ylim(0, max(boxes) * 1.4)
     
     # 5. Modern Title and X-axis labels
-    fig.suptitle(f"PROCUREMENT ANALYTICS - {quality} Quality", fontsize=18, y=0.98, color='#333333')
+    fig.suptitle(f"PROCUREMENT ANALYTICS", fontsize=18, y=0.98, color='#333333')
     plt.title("Weight vs Box Count by Consignment", fontsize=12, pad=20, color='#777777')
     ax1.tick_params(axis='x', rotation=45, labelsize=11, colors='#555555')
 
     # 6. Enhanced Data Table
     cell_text = [[f"{w:,}" for w in weights], boxes]
     row_labels = ['WEIGHT (Kg)', 'BOXES']
-    row_colours = ['#00a859', '#3a7bd5']
+    # Use neutral colors for table rows since bars have many colors
+    row_colours = ['#007f5f', '#808080'] 
     col_colours = ['#f5f5f5'] * len(categories)
 
     table = plt.table(cellText=cell_text,
@@ -161,7 +180,7 @@ def generate_chart():
                       colColours=col_colours,
                       cellLoc='center',
                       loc='bottom',
-                      bbox=[0, -0.35, 1, 0.2]) # Position the table lower
+                      bbox=[0, -0.35, 1, 0.2])
     
     table.auto_set_font_size(False)
     table.set_fontsize(10)
@@ -173,27 +192,33 @@ def generate_chart():
 
     # 7. Modern Legend
     handles1, labels1 = ax1.get_legend_handles_labels()
-    handles2, labels2 = ax2.get_legend_handles_labels()
+    # Create custom legend handles for the multi-colored bars
+    from matplotlib.patches import Patch
+    handles2 = [Patch(facecolor=color, label=label) for color, label in 
+                [('#d90429', 'Group 1'), ('#f97316', 'Group 2'), ('#22c55e', 'Group 3'), ('#f472b6', 'Group 4')]]
+    labels2 = [h.get_label() for h in handles2]
+
+
     legend = fig.legend(handles1 + handles2, labels1 + labels2,
+                        title="Legend",
                         loc='upper right',
-                        bbox_to_anchor=(0.87, 0.88), # Position legend carefully
+                        bbox_to_anchor=(0.87, 0.88),
                         frameon=True,
-                        framealpha=0.9,
+                        framealpha=0.95,
                         facecolor='white',
-                        edgecolor='#dddddd',
-                        labelspacing=1.2)
+                        edgecolor='#dddddd')
     
     # 8. Final Polish & Save to Buffer
-    ax1.set_xticks([]) # Hide original x-axis ticks, as table provides labels
+    ax1.set_xticks([]) # Hide original x-axis ticks
     ax1.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
-    ax2.grid(False) # Turn off grid for the second axis
+    ax2.grid(False)
 
     # Add watermark
     fig.text(0.5, 0.5, 'FASCORP', 
              fontsize=100, color='grey', 
              ha='center', va='center', alpha=0.1, rotation=30, zorder=0)
     
-    # Save chart to an in-memory buffer instead of a file
+    # Save chart to an in-memory buffer
     buf = io.BytesIO()
     plt.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor=fig.get_facecolor())
     plt.close(fig) # Close the figure to free up memory
