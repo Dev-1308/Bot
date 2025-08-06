@@ -11,6 +11,11 @@ import io
 import matplotlib
 matplotlib.use('Agg')
 import numpy as np
+import io
+import matplotlib
+matplotlib.use('Agg') # Use a non-interactive backend for web servers
+import seaborn as sns
+import matplotlib.patheffects as path_effects
 
 app = Flask(__name__)
 CORS(app)
@@ -60,7 +65,9 @@ def chat():
 @app.route("/chart", methods=["POST"])
 def generate_chart():
     """
-    Generates a styled chart from POST request data and returns it as a PNG image.
+    Generates an attractive, modern styled bar-line chart from POST request data 
+    and returns it as a PNG image.
+    Expects a JSON payload with 'categories', 'quality', 'weights', and 'boxes'.
     """
     # 1. Get data from the POST request
     try:
@@ -68,68 +75,132 @@ def generate_chart():
         if not data:
             return jsonify({"error": "Request body must be JSON."}), 400
             
-        categories = data['categories']
-        quality = data['quality']
-        weights = data['weights']
-        boxes = data['boxes']
-    except (KeyError, TypeError):
-        return jsonify({"error": "Missing or invalid 'categories', 'weights', or 'boxes' keys."}), 400
+        categories = data.get('categories', ['C1', 'C2', 'C3', 'C4', 'C5', 'C6'])
+        quality = data.get('quality', 'Standard')
+        weights = data.get('weights', [1200, 1550, 950, 1800, 1300, 1650])
+        boxes = data.get('boxes', [80, 100, 65, 120, 90, 110])
+    except Exception as e:
+        # Catch potential issues if data is not a dict or keys are missing
+        return jsonify({"error": f"Invalid JSON data: {e}"}), 400
 
     # Validate that all lists have the same length
     if not (len(categories) == len(weights) == len(boxes)):
         return jsonify({"error": "All lists ('categories', 'weights', 'boxes') must be of the same length."}), 400
 
-    # 2. Create the chart
-    fig, ax1 = plt.subplots(figsize=(14, 8))
-    fig.patch.set_facecolor('gold') # Set outer background
+    # 2. Setup Modern Style from your function
+    sns.set_style("whitegrid", {'grid.linestyle': ':', 'grid.color': '0.8'})
+    plt.rcParams['font.family'] = 'DejaVu Sans'
+    plt.rcParams['axes.titleweight'] = 'bold'
+    plt.rcParams['axes.labelweight'] = 'bold'
+    
+    # Create figure with modern aesthetics
+    fig, ax1 = plt.subplots(figsize=(14, 8.5), facecolor='#fafafa') # Increased height slightly for table
+    fig.subplots_adjust(left=0.08, right=0.88, top=0.9, bottom=0.1) # Adjusted layout
+    
+    # Set a subtle background color for the plot area
+    ax1.set_facecolor('#f5f5f5')
 
-    # Set plot area background and border
-    ax1.set_facecolor('#F0F8FF') 
-    for spine in ax1.spines.values():
-        spine.set_edgecolor('c')
-        spine.set_linewidth(1.5)
-
-    # Plot the data lines
-    ax1.plot(categories, weights, color='blue', marker='o', linewidth=2.5, label="Weight (Kg)")
-    ax1.set_ylabel("Weight (Kg)", color="blue", fontsize=12, weight='bold')
-    ax1.tick_params(axis='y', labelcolor="blue")
-
+    # 3. Enhanced Line Plot (Weights)
+    ax1.plot(categories, weights, 
+             color='#00a859',       # Modern green
+             marker='D',            # Diamond markers
+             markersize=8,
+             markeredgecolor='white',
+             markeredgewidth=1.5,
+             linewidth=3, 
+             label="Weight (Kg)",
+             zorder=3,
+             path_effects=[path_effects.withStroke(linewidth=5, foreground='white')])
+    
+    ax1.set_ylabel("Weight (Kg)", color='#00a859', fontsize=13, labelpad=15)
+    ax1.tick_params(axis='y', colors='#00a859', labelsize=11)
+    ax1.set_ylim(0, max(weights) * 1.25)
+    
+    # 4. Modern Bar Plot (Boxes) on a shared X-axis
     ax2 = ax1.twinx()
-    ax2.plot(categories, boxes, color='red', marker='s', linewidth=2.5, label="No. of Boxes")
-    ax2.set_ylabel("No. of Boxes", color="red", fontsize=12, weight='bold')
-    ax2.tick_params(axis='y', labelcolor="red")
+    bars = ax2.bar(categories, boxes, 
+                   color='#3a7bd5',       # Modern blue
+                   alpha=0.85, 
+                   width=0.5,
+                   edgecolor='white',
+                   linewidth=1.5,
+                   label="No. of Boxes",
+                   zorder=2)
 
-    # 3. Add the data table at the bottom
-    ax1.set_xticks([]) # Hide original x-axis ticks
-    
-    the_table = plt.table(cellText=[weights, boxes],
-                          rowLabels=['Weight (Kg)', 'No. of Boxes'],
-                          colLabels=categories,
-                          loc='bottom',
-                          cellLoc='center',
-                          rowLoc='center')
-    
-    the_table.auto_set_font_size(False)
-    the_table.set_fontsize(10)
-    the_table.scale(1, 1.8)
+    # Add value labels for the bar plot
+    for bar in bars:
+        height = bar.get_height()
+        ax2.annotate(f"{height}",
+                     xy=(bar.get_x() + bar.get_width() / 2, height),
+                     xytext=(0, 5), # text offset
+                     textcoords="offset points",
+                     ha='center', va='bottom',
+                     fontsize=10,
+                     fontweight='bold',
+                     color='#3a7bd5')
 
-    # Adjust layout to make room for the table
-    plt.subplots_adjust(left=0.1, bottom=0.25)
-
-    # 4. Final touches
-    plt.title(f"Consignment Wise Procurement Analytics {quality}", fontsize=16, weight='bold')
-    ax1.grid(True, linestyle='--', alpha=0.7)
+    ax2.set_ylabel("No. of Boxes", color='#3a7bd5', fontsize=13, labelpad=15)
+    ax2.tick_params(axis='y', colors='#3a7bd5', labelsize=11)
+    ax2.set_ylim(0, max(boxes) * 1.4)
     
-    # 5. Save chart to an in-memory buffer
+    # 5. Modern Title and X-axis labels
+    fig.suptitle(f"PROCUREMENT ANALYTICS - {quality} Quality", fontsize=18, y=0.98, color='#333333')
+    plt.title("Weight vs Box Count by Consignment", fontsize=12, pad=20, color='#777777')
+    ax1.tick_params(axis='x', rotation=45, labelsize=11, colors='#555555')
+
+    # 6. Enhanced Data Table
+    cell_text = [[f"{w:,}" for w in weights], boxes]
+    row_labels = ['WEIGHT (Kg)', 'BOXES']
+    row_colours = ['#00a859', '#3a7bd5']
+    col_colours = ['#f5f5f5'] * len(categories)
+
+    table = plt.table(cellText=cell_text,
+                      rowLabels=row_labels,
+                      rowColours=row_colours,
+                      colLabels=categories,
+                      colColours=col_colours,
+                      cellLoc='center',
+                      loc='bottom',
+                      bbox=[0, -0.35, 1, 0.2]) # Position the table lower
+    
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    for key, cell in table.get_celld().items():
+        cell.set_edgecolor('w')
+        cell.set_text_props(color='white' if key[1] == -1 else '#333333')
+        if key[0] == -1: # Header row
+             cell.set_text_props(weight='bold', color='#555555')
+
+    # 7. Modern Legend
+    handles1, labels1 = ax1.get_legend_handles_labels()
+    handles2, labels2 = ax2.get_legend_handles_labels()
+    legend = fig.legend(handles1 + handles2, labels1 + labels2,
+                        loc='upper right',
+                        bbox_to_anchor=(0.87, 0.88), # Position legend carefully
+                        frameon=True,
+                        framealpha=0.9,
+                        facecolor='white',
+                        edgecolor='#dddddd',
+                        labelspacing=1.2)
+    
+    # 8. Final Polish & Save to Buffer
+    ax1.set_xticks([]) # Hide original x-axis ticks, as table provides labels
+    ax1.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
+    ax2.grid(False) # Turn off grid for the second axis
+
+    # Add watermark
+    fig.text(0.5, 0.5, 'FASCORP', 
+             fontsize=100, color='grey', 
+             ha='center', va='center', alpha=0.1, rotation=30, zorder=0)
+    
+    # Save chart to an in-memory buffer instead of a file
     buf = io.BytesIO()
-    canvas = FigureCanvas(fig)
-    canvas.print_png(buf)
+    plt.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor=fig.get_facecolor())
     plt.close(fig) # Close the figure to free up memory
     buf.seek(0)
 
-    # 6. Return the image as a response
+    # 9. Return the image as a response
     return send_file(buf, mimetype='image/png')
-
 
 
 
