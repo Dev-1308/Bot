@@ -86,6 +86,7 @@ def chat():
 
 @app.route("/chart", methods=["POST"])
 def generate_chart():
+
     """Generate a modern styled bar-line chart from POST data"""
     try:
         # 1. Get and validate data
@@ -107,12 +108,12 @@ def generate_chart():
         plt.rcParams['axes.titleweight'] = 'bold'
         plt.rcParams['axes.labelweight'] = 'bold'
         
-        # Create figure
+        # Create figure with golden background
         fig, ax1 = plt.subplots(figsize=(14, 8.5), facecolor='gold')
-        fig.subplots_adjust(left=0.08, right=0.88, top=0.9, bottom=0.1)
+        fig.subplots_adjust(left=0.08, right=0.88, top=0.9, bottom=0.25)
         
-        # 3. Line Plot (Weights)
-        line_color = '#005f73'
+        # 3. Enhanced Line Plot (Weights)
+        line_color = '#22258d'
         ax1.plot(categories, weights, 
                  color=line_color,
                  marker='D',
@@ -134,7 +135,7 @@ def generate_chart():
         ax1.tick_params(axis='y', colors=line_color, labelsize=11)
         ax1.set_ylim(0, max(weights) * 1.25)
         
-        # 4. Bar Plot (Boxes)
+        # 4. Enhanced Bar Plot (Boxes)
         ax2 = ax1.twinx()
         ax2.set_facecolor('#f5f5f5')
         ax1.set_zorder(ax2.get_zorder() + 1)
@@ -165,38 +166,43 @@ def generate_chart():
                          color=bar.get_facecolor(),
                          path_effects=[path_effects.withStroke(linewidth=2, foreground='white')])
 
-        ax2.set_ylabel("No. of Boxes", color='#555555', fontsize=13, labelpad=15)
-        ax2.tick_params(axis='y', colors='#555555', labelsize=11)
+        ax2.set_ylabel("No. of Boxes", color='#22258d', fontsize=13, labelpad=15)
+        ax2.tick_params(axis='y', colors='#22258d', labelsize=11)
         ax2.set_ylim(0, max(boxes) * 1.4)
         
-        # 5. Title and labels
-        fig.suptitle(f"PROCUREMENT ANALYTICS - {quality} Quality", fontsize=18, y=0.98, color='#333333')
-        plt.title("Weight vs Box Count by Consignment", fontsize=12, pad=20, color='#777777')
-        ax1.tick_params(axis='x', rotation=45, labelsize=11, colors='#555555')
+        # 5. Enhanced Titles and labels
+        fig.suptitle(f"PROCUREMENT ANALYTICS - {quality} Quality", fontsize=18, y=0.98, color='#000000', fontweight='bold')
+        plt.title("Weight vs Box Count by Consignment", fontsize=12, pad=20, color='#000000', fontweight='bold')
+        ax1.tick_params(axis='x', rotation=0, labelsize=11, colors='#555555')
 
-        # 6. Data Table
+        # 6. Enhanced Data Table with colored columns
         cell_text = [[f"{w:,}" for w in weights], boxes]
         table = plt.table(cellText=cell_text,
                           rowLabels=['WEIGHT (Kg)', 'BOXES'],
                           rowColours=[line_color, '#808080'],
                           colLabels=categories,
-                          colColours=['#f5f5f5'] * len(categories),
+                          colColours=bar_colors,
                           cellLoc='center',
                           loc='bottom',
-                          bbox=[0, -0.35, 1, 0.2])
+                          bbox=[0, -0.3, 1, 0.2])
         
         table.auto_set_font_size(False)
         table.set_fontsize(10)
         for key, cell in table.get_celld().items():
             cell.set_edgecolor('w')
-            cell.set_text_props(color='white' if key[1] == -1 else '#333333')
-            if key[0] == -1:
-                 cell.set_text_props(weight='bold', color='#555555')
+            row_idx, col_idx = key
+            if row_idx > -1 and col_idx > -1:  # Data cells
+                cell.set_facecolor(bar_colors[col_idx])
+                cell.set_text_props(color='white', weight='bold')
+            elif col_idx == -1 and row_idx > -1:  # Row headers
+                cell.set_text_props(color='white')
+            elif row_idx == -1 and col_idx > -1:  # Column headers
+                cell.set_text_props(weight='bold', color='white')
 
-        # 7. Legend
+        # 7. Enhanced Legend
         handles1, labels1 = ax1.get_legend_handles_labels()
         handles2 = [Patch(facecolor=color, label=label) for color, label in 
-                    [('#d90429', 'AAA'), ('#f97316', 'AA'), ('#22c55e', 'GP'), ('#f472b6', 'Mix/Pear')]]
+                    [('#d90429', 'AAA Grade'), ('#f97316', 'AA Grade'), ('#22c55e', 'GP Grade'), ('#f472b6', 'Mix/Pear')]]
         labels2 = [h.get_label() for h in handles2]
 
         fig.legend(handles1 + handles2, labels1 + labels2,
@@ -210,7 +216,7 @@ def generate_chart():
         
         # 8. Final touches
         ax1.set_xticks([])
-        ax1.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
+        ax1.grid(False)
         ax2.grid(False)
 
         # Watermark
@@ -229,8 +235,6 @@ def generate_chart():
     except Exception as e:
         app.logger.error(f"Chart generation error: {str(e)}")
         return jsonify({"error": "Failed to generate chart"}), 500
-
-@app.route("/health")
 def health_check():
     return jsonify({"status": "healthy", "version": "1.0.0"})
 
