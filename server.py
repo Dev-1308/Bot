@@ -84,7 +84,7 @@ def chat():
         app.logger.error(f"Chat error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
-@app.route("/chart", methods=["POST"])
+
 @app.route("/chart", methods=["POST"])
 def generate_chart():
     """Generate a modern styled bar-line chart and return as raw image bytes (UInt8List)"""
