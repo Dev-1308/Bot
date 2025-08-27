@@ -6,14 +6,15 @@ from io import BytesIO
 chart_data = {
     "categories": ["CON-001", "CON-002", "CON-003", "CON-004", "CON-005", "CON-006"],
     "weights": [1250, 1800, 950, 2100, 1500, 1750],
-    "boxes": [85, 120, 65, 140, 95, 115],
-    "quality": "Premium"
+    "prices":[90,90,45,45,100,45],
+    "quality": "Premium",
+    "landing": 30
 }
 
 # Make the POST request
 try:
     response = requests.post(
-        "http://localhost:5000/chart",  # Replace with your server URL
+        "http://localhost:5000/ladaniChart",  # Replace with your server URL
         json=chart_data,
         headers={"Content-Type": "application/json"}
     )
@@ -33,6 +34,7 @@ try:
         plt.show()
 
     else:
+        print(response.content)
         print(f"Error {response.status_code}: {response.json().get('error', 'Unknown error')}")
 
 except requests.exceptions.RequestException as e:
