@@ -410,7 +410,7 @@ def generate_ladani_chart():
         # Catch potential issues if data is not a dict or keys are missing
         return jsonify({"error": f"Invalid JSON data: {e}"}), 400
     
-    landingcosts =[i+landingcost for i in prices]
+    landingcosts = [i + landingcost if i != 0 else 0 for i in prices]
 
     # Validate that all lists have the same length
     if not (len(categories) == len(prices) == len(weights)):
